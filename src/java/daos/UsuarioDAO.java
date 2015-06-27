@@ -23,25 +23,49 @@ public class UsuarioDAO {
         conn = new Conexao();
     }
 
+    public String getSenha(Usuario usuario) {
+        try (PreparedStatement sql = conn.getConexao().prepareStatement(
+                "select senha from usuarios where id=?")) {
+            sql.setInt(1, usuario.getId());
+            String senha = null;
+            ResultSet r = sql.executeQuery();
+
+            while (r.next()) {
+                senha = r.getString("senha");
+            }
+
+            return senha;
+
+        } catch (SQLException sqle) {
+            throw new RuntimeException(sqle);
+        } finally {
+            conn.fechar();
+        }
+    }
+
     public Usuario get(String agencia, String conta) {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
-                "select * from usuarios where id= (select id_usuario from contas "
-                + "where num_agencia=? and num_conta=? group by id_usuario)")) {
+                "select id,nome,cpf,telefone,endereco from usuarios where id= "
+                + "(select id_usuario from contas where num_agencia=? and num_conta=? "
+                + "group by id_usuario)")) {
             sql.setString(1, agencia);
             sql.setString(2, conta);
             ResultSet r = sql.executeQuery();
 
             //criando o objeto usuario 
             Usuario usuario = new Usuario();
+
             while (r.next()) {
                 popular(usuario, r);
+                return usuario;
             }
-            conn.fechar();
-            return usuario;
+            return null;
 
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
+        } finally {
+            conn.fechar();
         }
 
     }
@@ -53,8 +77,9 @@ public class UsuarioDAO {
         usuario.setCPF(r.getString("cpf"));
         usuario.setTelefone(r.getString("telefone"));
         usuario.setEndereço(r.getString("endereco"));
-        usuario.setSenha(r.getString("senha"));
-        usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
+        //usuario.setSenha(r.getString("senha"));
+        //as contas só serão setadas se a senha tiver correta
+        //usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
 
     }
 }

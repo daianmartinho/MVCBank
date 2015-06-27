@@ -19,7 +19,7 @@ public class Usuario {
     String telefone;
     String endereço;
     List<Conta> contas;
-    String senha;
+    //String senha; tirei a senha pra não ficar passando ela na sessão
 
     public int getId() {
         return id;
@@ -45,14 +45,7 @@ public class Usuario {
         this.endereço = endereço;
     }
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
+    
     public String getCPF() {
         return CPF;
     }

@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col s12">
             <div class="card-panel">
-                <h2 class="center">Olá, ${usuario.nome}</h2>
+                <h3 class="center">${msg}</h3>
             </div>
         </div>
         <div class="row">

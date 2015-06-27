@@ -38,18 +38,16 @@ public class LoginServlet extends HttpServlet {
         //pede o objeto do usuario que possui agencia e conta informada 
         Usuario usuario = new UsuarioDAO().get(sAgencia, sConta);
         if (usuario != null) {
-
             //poe o objeto usuario na sessao
             HttpSession sessao = request.getSession();
             sessao.setAttribute("usuario", usuario);
 
             //redireciona para pagina de autenticação
-            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp");
-            rd.forward(request, response);
+            request.setAttribute("msg", "Olá "+usuario.getNome()+", insira sua senha.");   
+            request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
         } else {
-            request.setAttribute("erro", "Usuário não encontrado");
-            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/erro.jsp");
-            rd.forward(request, response);
+            request.setAttribute("msg", "Ops! Conta não encontrada.");           
+            request.getRequestDispatcher("/WEB-INF/login/index.jsp").forward(request, response);
         }
 
     }
@@ -57,29 +55,20 @@ public class LoginServlet extends HttpServlet {
     private void passCheck(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String senha = request.getParameter("senha");
+        String senhaInformada = request.getParameter("senha");
         HttpSession sessao = request.getSession();
-        Object oUsuario = sessao.getAttribute("usuario");
-        if (oUsuario != null && senha != null) {
-            Usuario usuario = (Usuario) oUsuario;
+        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
+        //pede ao usuarioDAO a senha do usuario e compara com a senha informada
+        if (new UsuarioDAO().getSenha(usuario).equals(senhaInformada)) {
+            //seta a lista de contas desse usuario com a lista obtida no bd pelo ContaDAO
+            usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
+            //redireciona pro menu
+            request.setAttribute("msg", "Bem vindo, "+usuario.getNome());   
+            request.getRequestDispatcher("/WEB-INF/menu.jsp").forward(request, response);
 
-            if (usuario.getSenha().equals(senha)) {
-                //seta a lista de contas desse usuario com a lista obtida no bd pelo ContaDAO
-                usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
-                //redireciona pro menu
-                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/menu.jsp");
-                rd.forward(request, response);
-
-            } else {
-                request.setAttribute("erro", "Senha inválida");
-                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/login/erro.jsp");
-                rd.forward(request, response);
-
-            }
-
-        } else {
-            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/novoLogin.jsp");
-            rd.forward(request, response);
+        } else {            
+            request.setAttribute("msg", "Ops! Senha inválida, tente novamente.");           
+            request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
 
         }
 
