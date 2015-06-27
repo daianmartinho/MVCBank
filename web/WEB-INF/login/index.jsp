@@ -3,8 +3,7 @@
     <div class="row">
         <h6 class="center">${msg}</h6>
         <form class="col s12" method="post" action="LoginServlet">
-            <%HttpSession sessao = request.getSession();
-                     sessao.setAttribute("action", "userCheck");%>
+            <input type="hidden" name="action" value="userCheck"/>
             <div class="input-field col s12">
                 <input class="validate" type="text" name="agencia" id="agencia" required/>
                 <label for="agencia">Agencia</label>

@@ -9,7 +9,6 @@ import daos.ContaDAO;
 import daos.UsuarioDAO;
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,10 +42,10 @@ public class LoginServlet extends HttpServlet {
             sessao.setAttribute("usuario", usuario);
 
             //redireciona para pagina de autenticação
-            request.setAttribute("msg", "Olá "+usuario.getNome()+", insira sua senha.");   
+            request.setAttribute("msg", "Olá " + usuario.getNome() + ", insira sua senha.");
             request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
         } else {
-            request.setAttribute("msg", "Ops! Conta não encontrada.");           
+            request.setAttribute("msg", "Ops! Conta não encontrada.");
             request.getRequestDispatcher("/WEB-INF/login/index.jsp").forward(request, response);
         }
 
@@ -63,11 +62,11 @@ public class LoginServlet extends HttpServlet {
             //seta a lista de contas desse usuario com a lista obtida no bd pelo ContaDAO
             usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
             //redireciona pro menu
-            request.setAttribute("msg", "Bem vindo, "+usuario.getNome());   
+            request.setAttribute("msg", "Bem vindo, " + usuario.getNome());
             request.getRequestDispatcher("/WEB-INF/menu.jsp").forward(request, response);
 
-        } else {            
-            request.setAttribute("msg", "Ops! Senha inválida, tente novamente.");           
+        } else {
+            request.setAttribute("msg", "Ops! Senha inválida, tente novamente.");
             request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
 
         }
@@ -76,10 +75,13 @@ public class LoginServlet extends HttpServlet {
 
     protected void controle(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-
-        String action = (String) sessao.getAttribute("action");
-
+        //tenta pegar action vindo de um jsp
+        String action = request.getParameter("action");
+        //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
+        if (action == null) {
+            action = (String) request.getAttribute("action");
+        }
+        
         switch (action) {
             case "index":
                 index(request, response);

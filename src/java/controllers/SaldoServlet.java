@@ -8,7 +8,6 @@ package controllers;
 import daos.ContaDAO;
 import daos.TipoDeOperacaoDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -26,25 +25,40 @@ import models.Usuario;
 @WebServlet(name = "SaldoServlet", urlPatterns = {"/SaldoServlet"})
 public class SaldoServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    private void index(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        response.setContentType("text/html;charset=UTF-8");
+        //listar-contas é comum a algumas servlets, por isso preciso mandar alguns parametros pros botões
+        //neste caso, quero que o botão tenha um link pra SaldoServlet com action=view
+        request.setAttribute("nomeServlet", "SaldoServlet");
+        request.setAttribute("action", "view");
+        
+        request.getRequestDispatcher("WEB-INF/common/listar-contas.jsp").forward(request, response);
     }
-        protected void controle(HttpServletRequest request, HttpServletResponse response)
+
+    private void view(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        HttpSession sessao = request.getSession();        
+        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
+        new Saldo
+        
+        if (conta != null) {
+            request.setAttribute("saldo", conta.getSaldo());
+            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
+        }
+    }
+
+    protected void controle(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-        String action = !request.getParameter("action").equals(null) ?
-                request.getParameter("action"):
-                (String) sessao.getAttribute("action");
+        //tenta pegar action vindo de um jsp
+        String action = request.getParameter("action");
+        //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
+        if (action == null) {
+            action = (String) request.getAttribute("action");
+        }
+        
         switch (action) {
             case "view":
                 view(request, response);
@@ -53,7 +67,7 @@ public class SaldoServlet extends HttpServlet {
                 index(request, response);
                 break;
         }
-       
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -82,7 +96,7 @@ public class SaldoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        controle(request, response);
     }
 
     /**
@@ -94,34 +108,5 @@ public class SaldoServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    private void index(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        HttpSession sessao = request.getSession();
-        Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO().get(1));//1 é o id de saldo no banco
-        sessao.setAttribute("operacao", operacao);
-        request.getRequestDispatcher("WEB-INF/saldo/index.jsp").forward(request, response);
-    }
-
-    private void view(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        HttpSession sessao = request.getSession();
-        ContaDAO contadao = new ContaDAO();
-        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
-        Conta conta = null;
-        for(Conta c : usuario.getContas()){
-            if(c.getTipo().getId() == Integer.parseInt(request.getParameter("tipo"))){
-                conta = c;
-            }
-        }
-        if(conta!=null){
-            request.setAttribute("saldo", conta.getSaldo());
-            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
-        }else{
-            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
-        }
-    }
 
 }

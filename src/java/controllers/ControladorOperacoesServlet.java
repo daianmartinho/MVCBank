@@ -5,16 +5,15 @@
  */
 package controllers;
 
-import daos.TipoDeOperacaoDAO;
+
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import models.Operacao;
+
+
 
 /**
  *
@@ -28,14 +27,13 @@ public class ControladorOperacoesServlet extends HttpServlet {
             throws ServletException, IOException {
         
               
-        String servlet = request.getParameter("servlet");
-        HttpSession sessao = request.getSession();
-        sessao.setAttribute("action", request.getParameter("action"));
+        String servlet = request.getParameter("servlet");        
+        request.setAttribute("action", request.getParameter("action"));
         
         try {            
             request.getRequestDispatcher(servlet).forward(request, response);
 
-        } catch (Exception e) {
+        } catch (ServletException | IOException e) {
             throw new ServletException(
                     "A operação causou uma exceção", e);
         }
