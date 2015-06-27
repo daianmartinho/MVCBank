@@ -92,19 +92,16 @@ public class OperacaoDAO {
     public double getSaldo(Conta conta) throws SQLException {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
-                "select saldo from contas where num_agencia=? and num_conta=? and id_tipo_conta")) {
-                    
+                "select saldo from contas where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
             
             //setando as variaveis do stmt
             sql.setString(1, conta.getAgencia().getNum_agencia());
             sql.setString(2, conta.getNum_conta());
-            sql.setInt(3, conta.getTipo().getId());
+            sql.setInt(3, conta.getTipo().getId());  
             
-
-            sql.executeUpdate();
-
-            return tSaldo;
-
+            ResultSet r = sql.executeQuery();
+            
+            return r.getDouble("saldo");
         }
     }
     

@@ -22,11 +22,11 @@ public class ContaDAO {
 
     Conexao conn;
 
-    public ContaDAO() {
-        conn = new Conexao();
+    public ContaDAO(Conexao c) {
+        conn = c;
     }
 
-    public Conta get(String sNumAgencia, String sNumConta, String sIdTipoDeConta) {
+    public Conta getObject(String sNumAgencia, String sNumConta, String sIdTipoDeConta) {
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "select * from contas where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
             sql.setString(1, sNumAgencia);
@@ -36,20 +36,18 @@ public class ContaDAO {
             Conta conta = new Conta();
             while (r.next()) {
                 popular(conta, r);
-                conta.setUsuario(new UsuarioDAO().get(sNumAgencia, sNumConta));
+                conta.setUsuario(new UsuarioDAO(conn).getObject(sNumAgencia, sNumConta));
             }
             return conta;
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } finally {
-            conn.fechar();
-        }
+        } 
     }
 
     //metodo retorna a lista de contas que um usuario possui
     public List<Conta> getContasDoUsuario(Usuario usuario) {
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
-                "select * from contas where id_usuario=?")) {
+                "select num_agencia, num_conta, id_tipo_conta from usuario_conta where id_usuario=?")) {
            
             sql.setInt(1, usuario.getId());
 
@@ -70,9 +68,7 @@ public class ContaDAO {
 
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } finally {
-            conn.fechar();
-        }
+        } 
 
     }
 
@@ -86,7 +82,7 @@ public class ContaDAO {
         conta.setAgencia(new AgenciaDAO().get(numAgencia));
         conta.setNum_conta(numConta);
         conta.setTipo(new TipoDeContaDAO().get(r.getInt("id_tipo_conta")));
-        conta.setSaldo(r.getDouble("saldo"));
+        conta.setSaldo(new OperacaoDAO(conn).getSaldo(conta));
         
     }
 }
