@@ -5,6 +5,7 @@
  */
 package controllers;
 
+import daos.ContaDAO;
 import daos.OperacaoDAO;
 import daos.TipoDeOperacaoDAO;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jdbc.Conexao;
+import models.Conta;
 import models.Operacao;
 import models.Usuario;
 
@@ -68,7 +70,9 @@ public class SaqueServlet extends HttpServlet {
             conn.getConexao().setAutoCommit(false);
 
             //realizando o saque
-            double novoSaldo = new OperacaoDAO(conn).doSaque(operacao.getConta(), operacao.getValor());
+            Conta conta = new ContaDAO(conn).getObject(operacao.getConta().getAgencia().getNum_agencia(),
+                    operacao.getConta().getNum_conta(), ""+operacao.getConta().getTipo().getId());
+            double novoSaldo = new OperacaoDAO(conn).doSaque(conta, operacao.getValor());
 
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();
