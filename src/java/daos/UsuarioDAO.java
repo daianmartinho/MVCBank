@@ -63,20 +63,19 @@ public class UsuarioDAO {
         }
     }
     
-    public List<String> getIdentificacao(String agencia, String conta) {
+    public String getNome(String agencia, String conta) {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
-                "select nome,cpf from usuarios where id= "
+                "select nome from usuarios where id= "
                 + "(select id_usuario from usuario_conta where num_agencia=? and num_conta=? "
                 + "group by id_usuario)")) {
             sql.setString(1, agencia);
             sql.setString(2, conta);
             ResultSet r = sql.executeQuery();
-            List<String> identificacao = new ArrayList();
+            
             while (r.next()) {
-                r.getString("nome");
-                r.getString("cpf");
-                return identificacao;
+               return r.getString("nome");
+               
             }
             return null;
 

@@ -22,9 +22,10 @@
             <a class="col s12 m6 waves-effect waves-light btn" 
                href="ControladorOperacoesServlet?servlet=DepositoServlet&action=index">Deposito</a>
             <a class="col s12 m6 waves-effect waves-light btn"
-           href="ControladorOperacoesServlet?servlet=SaqueServlet&action=index">Saque</a>
-            <a class="col s12 m6 waves-effect waves-light btn">Transferencia</a>
+               href="ControladorOperacoesServlet?servlet=SaqueServlet&action=index">Saque</a>
+            <a class="col s12 m6 waves-effect waves-light btn"
+               href="ControladorOperacoesServlet?servlet=TransferenciaServlet&action=index">Transferencia</a>
             <a class="col s12 m6 waves-effect waves-light btn">Investimento</a>
         </div>
-</div>
-<jsp:include page="footer.jsp" />
+    </div>
+    <jsp:include page="footer.jsp" />

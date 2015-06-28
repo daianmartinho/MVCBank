@@ -44,10 +44,10 @@ public class SaqueServlet extends HttpServlet {
     private void create(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Operacao operacao = new Operacao();        
         operacao.setTipo(new TipoDeOperacaoDAO(conn).get(4));//4 é o id de saque no banco
-        int id_tipo_conta = Integer.parseInt(request.getParameter("tipo"));
+        String id_tipo_conta = request.getParameter("tipo");
         HttpSession sessao = request.getSession();
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
-        operacao.setConta(usuario.getConta(id_tipo_conta));
+        operacao.setConta(usuario.getConta(Integer.parseInt(id_tipo_conta)));
         
         sessao.setAttribute("operacao", operacao);
        
@@ -68,7 +68,7 @@ public class SaqueServlet extends HttpServlet {
             conn.getConexao().setAutoCommit(false);
 
             //realizando o saque
-            double novoSaldo = new OperacaoDAO(conn).doSaque(operacao.getConta(), operacao.getValor());
+            double novoSaldo = new OperacaoDAO(conn).doDebito(operacao.getConta(), operacao.getValor());
 
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();

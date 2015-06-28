@@ -8,9 +8,11 @@ package controllers;
 import daos.ContaDAO;
 import daos.OperacaoDAO;
 import daos.TipoDeOperacaoDAO;
+import daos.UsuarioDAO;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -27,41 +29,39 @@ import models.Usuario;
  *
  * @author Daian
  */
-@WebServlet(name = "DepositoServlet", urlPatterns = {"/DepositoServlet"})
-public class DepositoServlet extends HttpServlet {
+@WebServlet(name = "TransferenciaServlet", urlPatterns = {"/TransferenciaServlet"})
+public class TransferenciaServlet extends HttpServlet {
 
     Conexao conn;
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     private void view(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        HttpSession sessao = request.getSession();
-        
-        Operacao operacao = (Operacao) sessao.getAttribute("operacao");
+        HttpSession sessao = request.getSession();  
+        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
+        Operacao operacaoFrom = (Operacao) sessao.getAttribute("operacaoFrom");
+        Operacao operacaoTo = (Operacao) sessao.getAttribute("operacaoTo");
         
         String sNumAgencia = request.getParameter("num_agencia");
         String sNumConta = request.getParameter("num_conta");
-        String sTipoDeConta = request.getParameter("tipo_conta");
+        String sTipoDeContaFrom = request.getParameter("id_tipo_conta_from");
+        String sTipoDeContaTo = request.getParameter("id_tipo_conta_to");
         String sValor = request.getParameter("valor");
+        System.out.println("tipo from"+sTipoDeContaFrom);
+        System.out.println("tipo to"+sTipoDeContaTo);
+        if (!sNumAgencia.isEmpty() && !sNumConta.isEmpty() && !sTipoDeContaFrom.isEmpty() && !sTipoDeContaTo.isEmpty() && !sValor.isEmpty()) {
 
-        if (!sNumAgencia.isEmpty() && !sNumConta.isEmpty() && !sTipoDeConta.isEmpty() && !sValor.isEmpty()) {
-
-            operacao.setConta(new ContaDAO(conn).getObject(sNumAgencia, sNumConta, sTipoDeConta));
-            operacao.setValor(Double.parseDouble(sValor));
-
+            operacaoFrom.setConta(usuario.getConta(Integer.parseInt(sTipoDeContaFrom)));
+            operacaoFrom.setValor(Double.parseDouble(sValor));
+            operacaoTo.setConta(new ContaDAO(conn).getObject(sNumAgencia, sNumConta, sTipoDeContaTo));
+            operacaoTo.setValor(Double.parseDouble(sValor));
+            String nomeDestinatario = new UsuarioDAO(conn).getNome(sNumAgencia, sNumConta);            
             //continuo passando a operaçao adiante
-            sessao.setAttribute("operacao", operacao);
+            sessao.setAttribute("operacaoFrom", operacaoFrom);
+            sessao.setAttribute("operacaoTo", operacaoTo);
+            request.setAttribute("nomeDestinatario", nomeDestinatario);
 
-            request.getRequestDispatcher("WEB-INF/deposito/view.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/transferencia/view.jsp").forward(request, response);
         }
 
     }
@@ -70,10 +70,14 @@ public class DepositoServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
-        Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO(conn).get(3));//3 é o id de depósito no banco
-        sessao.setAttribute("operacao", operacao);        
-        request.getRequestDispatcher("WEB-INF/deposito/index.jsp").forward(request, response);
+        Operacao operacaoFrom = new Operacao();
+        Operacao operacaoTo = new Operacao();
+        operacaoFrom.setTipo(new TipoDeOperacaoDAO(conn).get(5));//5 é o id de transferencia no banco
+        operacaoTo.setTipo(new TipoDeOperacaoDAO(conn).get(5));//5 é o id de transferencia no banco
+        
+        sessao.setAttribute("operacaoFrom", operacaoFrom);
+        sessao.setAttribute("operacaoTo", operacaoTo); 
+        request.getRequestDispatcher("WEB-INF/transferencia/index.jsp").forward(request, response);
 
     }
 
@@ -81,35 +85,41 @@ public class DepositoServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
-        
-        Operacao operacao = (Operacao) sessao.getAttribute("operacao");
+     
+        Operacao operacaoFrom = (Operacao) sessao.getAttribute("operacaoFrom");
+        Operacao operacaoTo = (Operacao) sessao.getAttribute("operacaoTo");
         Usuario usuario = (Usuario) sessao.getAttribute("usuario");
-        //pede ao DepositoDAO pra depositar nessa conta e   
+       
         try {
             //INICIO DA TRANSAÇÃO
             conn.getConexao().setAutoCommit(false);
-            
-            //realizando o deposito
-            double novoSaldo = new OperacaoDAO(conn).doCredito(operacao.getConta(), operacao.getValor());
+            //realizando o débito de operacaoFrom
+            double novoSaldoFrom = new OperacaoDAO(conn).doDebito(operacaoFrom.getConta(), operacaoFrom.getValor());
+
+            //realizando o crédito em operacaoTo
+            double novoSaldoTo = new OperacaoDAO(conn).doCredito(operacaoTo.getConta(), operacaoTo.getValor());
            
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();
             java.sql.Timestamp timestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-            operacao.setData(timestamp);
-           
-            //insere a operação na base
-            new OperacaoDAO(conn).doInsert(usuario, operacao);
+            operacaoFrom.setData(timestamp);
+            operacaoTo.setData(timestamp);
+            //insere as operações na base
+            new OperacaoDAO(conn).doInsert(usuario, operacaoFrom);
+            new OperacaoDAO(conn).doInsert(new UsuarioDAO(conn).getObject(operacaoTo.getConta().getAgencia().getNum_agencia(), operacaoTo.getConta().getNum_conta()), operacaoTo);
 
             conn.getConexao().commit();
             //FIM DA TRANSAÇÃO
 
             //operação comitada, posso atualizar o saldo do objeto
-            operacao.getConta().setSaldo(novoSaldo);
-            request.setAttribute("msg", "deposito realizado com sucesso");
-            request.getRequestDispatcher("WEB-INF/deposito/success.jsp").forward(request, response);
+            operacaoFrom.getConta().setSaldo(novoSaldoFrom);
+            operacaoTo.getConta().setSaldo(novoSaldoTo);
+            request.setAttribute("msg", "Transferencia realizada com sucesso");
+            request.getRequestDispatcher("WEB-INF/transferencia/success.jsp").forward(request, response);
 
         } finally {
             conn.getConexao().setAutoCommit(true);
+            sessao.setAttribute("operacao", null);
 
         }
 
@@ -158,7 +168,7 @@ public class DepositoServlet extends HttpServlet {
                 conn.getConexao().rollback();
             } catch (SQLException ex1) {
                 System.out.println("caiu 3");
-                Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(TransferenciaServlet.class.getName()).log(Level.SEVERE, null, ex1);
             }
         } finally {
             conn.fechar();
@@ -180,7 +190,7 @@ public class DepositoServlet extends HttpServlet {
         try {
             controle(request, response);
         } catch (SQLException ex) {
-            Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TransferenciaServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             conn.fechar();
         }

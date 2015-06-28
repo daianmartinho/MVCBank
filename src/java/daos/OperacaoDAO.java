@@ -27,7 +27,7 @@ public class OperacaoDAO {
         conn = c;
     }
 
-    public double doDeposito(Conta conta, double valor) throws SQLException {
+    public double doCredito(Conta conta, double valor) throws SQLException {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "update contas set saldo=? where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
@@ -87,7 +87,7 @@ public class OperacaoDAO {
         }
     }
 
-    public double doSaque(Conta conta, double valor) throws SQLException {
+    public double doDebito(Conta conta, double valor) throws SQLException {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "update contas set saldo=? where num_agencia=? and num_conta=? and id_tipo_conta=?")) {

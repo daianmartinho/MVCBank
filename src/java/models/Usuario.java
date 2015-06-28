@@ -70,9 +70,11 @@ public class Usuario {
         this.contas = conta;
     }
 
-    public Conta getConta(int id_tipo_conta) {
+    public Conta getConta(int  id_tipo_conta) {
+        
+        
         for (Conta c : contas) {
-            if(c.getTipo().id==id){
+            if(c.getTipo().id==id_tipo_conta){
                 return c;
             }
         }
