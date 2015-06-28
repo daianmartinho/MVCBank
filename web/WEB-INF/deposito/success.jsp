@@ -1,17 +1,17 @@
-<%-- 
-    Document   : deposito-success
-    Created on : 25/06/2015, 17:34:19
-    Author     : Daian
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>${success}</h1>
-    </body>
-</html>
+<jsp:include page="../header.jsp" />
+<div class="container">
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel">
+                <h3 class="center">Depósito feito com sucesso</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <a class="col s12 waves-effect waves-light btn"            
+           href="javascript: window.history.go(-3)">Voltar</a>
+    </div>
+</div>
+<jsp:include page="../footer.jsp" />

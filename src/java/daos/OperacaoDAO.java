@@ -37,8 +37,9 @@ public class OperacaoDAO {
 
             ResultSet r = sql.executeQuery();
             List<Operacao> lista = new ArrayList();
-            Operacao operacao = new Operacao();
+            Operacao operacao;
             while (r.next()) {
+                operacao = new Operacao();
                 popular(operacao, r);
                 lista.add(operacao);
             }

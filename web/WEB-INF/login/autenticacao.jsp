@@ -1,7 +1,7 @@
 <jsp:include page="/WEB-INF/header.jsp"/>
 <div class="container">
     <div class="row">
-        <h6 class="center">${msg}</h6>
+        <h2 class="center">${msg}</h2>
         <form action="LoginServlet" method="post">
             <input type="hidden" name="action" value="passCheck"/>
             <div class="input-field col s12">
