@@ -1,13 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package daos;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import jdbc.Conexao;
 import models.Usuario;
 
@@ -19,8 +17,8 @@ public class UsuarioDAO {
 
     Conexao conn;
 
-    public UsuarioDAO() {
-        conn = new Conexao();
+    public UsuarioDAO(Conexao c) {
+        conn = c;
     }
 
     public String getSenha(Usuario usuario) {
@@ -38,16 +36,14 @@ public class UsuarioDAO {
 
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } finally {
-            conn.fechar();
-        }
+        } 
     }
 
-    public Usuario get(String agencia, String conta) {
+    public Usuario getObject(String agencia, String conta) {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "select id,nome,cpf,telefone,endereco from usuarios where id= "
-                + "(select id_usuario from contas where num_agencia=? and num_conta=? "
+                + "(select id_usuario from usuario_conta where num_agencia=? and num_conta=? "
                 + "group by id_usuario)")) {
             sql.setString(1, agencia);
             sql.setString(2, conta);
@@ -64,9 +60,29 @@ public class UsuarioDAO {
 
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } finally {
-            conn.fechar();
         }
+    }
+    
+    public List<String> getIdentificacao(String agencia, String conta) {
+
+        try (PreparedStatement sql = conn.getConexao().prepareStatement(
+                "select nome,cpf from usuarios where id= "
+                + "(select id_usuario from usuario_conta where num_agencia=? and num_conta=? "
+                + "group by id_usuario)")) {
+            sql.setString(1, agencia);
+            sql.setString(2, conta);
+            ResultSet r = sql.executeQuery();
+            List<String> identificacao = new ArrayList();
+            while (r.next()) {
+                r.getString("nome");
+                r.getString("cpf");
+                return identificacao;
+            }
+            return null;
+
+        } catch (SQLException sqle) {
+            throw new RuntimeException(sqle);
+        } 
 
     }
 

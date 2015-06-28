@@ -9,13 +9,13 @@ import daos.ContaDAO;
 import daos.UsuarioDAO;
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import jdbc.Conexao;
 import models.Usuario;
 
 /**
@@ -24,6 +24,8 @@ import models.Usuario;
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
+
+    Conexao conn;
 
     private void index(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("WEB-INF/login/index.jsp").forward(request, response);
@@ -36,17 +38,17 @@ public class LoginServlet extends HttpServlet {
         String sConta = request.getParameter("conta");
 
         //pede o objeto do usuario que possui agencia e conta informada 
-        Usuario usuario = new UsuarioDAO().get(sAgencia, sConta);
+        Usuario usuario = new UsuarioDAO(conn).getObject(sAgencia, sConta);
         if (usuario != null) {
             //poe o objeto usuario na sessao
             HttpSession sessao = request.getSession();
             sessao.setAttribute("usuario", usuario);
 
             //redireciona para pagina de autenticação
-            request.setAttribute("msg", "Olá "+usuario.getNome()+", insira sua senha.");   
+            request.setAttribute("msg", "Olá " + usuario.getNome() + ", insira sua senha.");
             request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
         } else {
-            request.setAttribute("msg", "Ops! Conta não encontrada.");           
+            request.setAttribute("msg", "Ops! Conta não encontrada.");
             request.getRequestDispatcher("/WEB-INF/login/index.jsp").forward(request, response);
         }
 
@@ -54,20 +56,22 @@ public class LoginServlet extends HttpServlet {
 
     private void passCheck(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         response.setContentType("text/html;charset=UTF-8");
         String senhaInformada = request.getParameter("senha");
         HttpSession sessao = request.getSession();
         Usuario usuario = (Usuario) sessao.getAttribute("usuario");
         //pede ao usuarioDAO a senha do usuario e compara com a senha informada
-        if (new UsuarioDAO().getSenha(usuario).equals(senhaInformada)) {
+
+        if (new UsuarioDAO(conn).getSenha(usuario).equals(senhaInformada)) {
             //seta a lista de contas desse usuario com a lista obtida no bd pelo ContaDAO
-            usuario.setContas(new ContaDAO().getContasDoUsuario(usuario));
+            usuario.setContas(new ContaDAO(conn).getContasDoUsuario(usuario));
             //redireciona pro menu
-            request.setAttribute("msg", "Bem vindo, "+usuario.getNome());   
+            request.setAttribute("msg", "Bem vindo, " + usuario.getNome());
             request.getRequestDispatcher("/WEB-INF/menu.jsp").forward(request, response);
 
-        } else {            
-            request.setAttribute("msg", "Ops! Senha inválida, tente novamente.");           
+        } else {
+            request.setAttribute("msg", "Ops! Senha inválida, tente novamente.");
             request.getRequestDispatcher("/WEB-INF/login/autenticacao.jsp").forward(request, response);
 
         }
@@ -76,9 +80,12 @@ public class LoginServlet extends HttpServlet {
 
     protected void controle(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-
-        String action = (String) sessao.getAttribute("action");
+        //tenta pegar action vindo de um jsp
+        String action = request.getParameter("action");
+        //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
+        if (action == null) {
+            action = (String) request.getAttribute("action");
+        }
 
         switch (action) {
             case "index":
@@ -106,7 +113,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } finally {
+            conn.fechar();
+        }
     }
 
     /**
@@ -120,7 +132,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } finally {
+            conn.fechar();
+        }
     }
 
     /**
