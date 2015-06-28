@@ -1,27 +1,19 @@
-<%-- 
-    Document   : index
-    Created on : 26/06/2015, 18:14:42
-    Author     : Daian
---%>
+<jsp:include page="/WEB-INF/header.jsp" />
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <form action="SaqueServlet" method="post">
-            <table>
-                <tr>                    
-                    <td>Valor: <input type="text" name="valor" /></td>                    
-                     <td><input type="hidden" name="${name}" value="${value}"  /></td>
-                    <td><input type="hidden" name="action" value="confirm"  /></td>
-                    <td><input type="submit" name="saque" value="Confirmar" /></td>
-                </tr>
-                    
-            </table>
-        </form>
-    </body>
-</html>
+
+<div class="container">
+    <form action="SaqueServlet" method="post">
+        <div class="input-field col s12">
+            <input class="validate" type="text" name="valor" id="valor"/>
+            <label for="valor">Valor</label>
+            <input type="hidden" name="${name}" value="${value}"  />
+            <input type="hidden" name="action" value="confirm" />
+        </div>
+        <div class="row">
+            <button class="btn waves-effect waves-light col offset-s5" type="submit">Confirmar
+                <i class="mdi-content-send right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+<jsp:include page="/WEB-INF/footer.jsp" />

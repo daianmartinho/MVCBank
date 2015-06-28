@@ -47,7 +47,7 @@ public class SaldoServlet extends HttpServlet {
        
         double saldo = new OperacaoDAO(conn).getSaldo(usuario.getConta(id_tipo_conta));
 
-        request.setAttribute("msg", saldo);
+        request.setAttribute("msg", "R$"+saldo);
         request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
 
     }

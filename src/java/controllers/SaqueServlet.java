@@ -89,7 +89,7 @@ public class SaqueServlet extends HttpServlet {
             operacao.getConta().setSaldo(novoSaldo);
             operacao.getConta().addOperacao(operacao);
             
-            request.setAttribute("msg", "O saque foi realizado com sucesso! Seu novo Saldo é" + novoSaldo);
+            request.setAttribute("msg", "O saque foi realizado com sucesso! Seu novo Saldo é R$" + novoSaldo);
             request.getRequestDispatcher("WEB-INF/common/message.jsp").forward(request, response);
         } catch(SQLException e){
             conn.getConexao().rollback();

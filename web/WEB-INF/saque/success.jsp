@@ -1,17 +1,13 @@
-<%-- 
-    Document   : deposito-success
-    Created on : 25/06/2015, 17:34:19
-    Author     : Daian
---%>
+<jsp:include page="/WEB-INF/header.jsp" />
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
+
+<div class="container">
+    <div class="row">
         <h1>${success}</h1>
-    </body>
-</html>
+    </div>
+    <div class="row">
+        <a class="col s12 waves-effect waves-light btn"            
+           href="javascript: window.history.go(-3)">Voltar</a>
+    </div>
+</div>
+<jsp:include page="/WEB-INF/footer.jsp" />
