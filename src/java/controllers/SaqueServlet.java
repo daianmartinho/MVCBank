@@ -57,6 +57,7 @@ public class SaqueServlet extends HttpServlet {
 
     private void confirm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
+        
         HttpSession sessao = request.getSession();
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
         Operacao operacao = (Operacao) request.getAttribute("operacao");        
@@ -98,13 +99,15 @@ public class SaqueServlet extends HttpServlet {
     }
 
     protected void controle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+        
+        
         //tenta pegar action vindo de um jsp
         String action = request.getParameter("action");
         //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
         if (action == null) {
             action = (String) request.getAttribute("action");
         }
-
+        System.out.println("action = "+action);
         switch (action) {
             case "index":
                 index(request, response);

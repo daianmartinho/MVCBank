@@ -78,9 +78,9 @@ insert into agencias (num_agencia,endereco) values (0002,'rua 2');
 insert into tipos_conta (descricao) values ('Conta Corrente');
 insert into tipos_conta (descricao) values ('Conta Poupança');
 
-insert into usuarios(nome, cpf,telefone,senha) values ('daian','1231231231','111111222','123456');
-insert into usuarios(nome, cpf,telefone,senha) values ('igor','2222222222','1232222233','123456');
-insert into usuarios(nome, cpf,telefone,senha) values ('teogenes','3333333333','32131222','123456');
+insert into usuarios(nome, cpf,telefone,senha) values ('daian','1231231231','111111222','123');
+insert into usuarios(nome, cpf,telefone,senha) values ('igor','2222222222','1232222233','123');
+insert into usuarios(nome, cpf,telefone,senha) values ('teogenes','3333333333','32131222','123');
 
 insert into contas (num_agencia,num_conta, id_tipo_conta) values (0001,00001,1);
 insert into contas (num_agencia,num_conta, id_tipo_conta) values (0001,00001,2);

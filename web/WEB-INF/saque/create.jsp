@@ -15,8 +15,9 @@
         <form action="SaqueServlet" method="post">
             <table>
                 <tr>                    
-                    <td>Valor: <input type="text" name="valor" /></td>
-                    <td><input type="hidden" value="${value}" name="${name}" /></td>
+                    <td>Valor: <input type="text" name="valor" /></td>                    
+                     <td><input type="hidden" name="${name}" value="${value}"  /></td>
+                    <td><input type="hidden" name="action" value="confirm"  /></td>
                     <td><input type="submit" name="saque" value="Confirmar" /></td>
                 </tr>
                     
