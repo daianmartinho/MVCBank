@@ -49,9 +49,8 @@ public class SaqueServlet extends HttpServlet {
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
         operacao.setConta(usuario.getConta(id_tipo_conta));
         
-        request.setAttribute("name", "operacao");
-        request.setAttribute("value", operacao);
-        
+        sessao.setAttribute("operacao", operacao);
+       
         request.getRequestDispatcher("WEB-INF/saque/create.jsp").forward(request, response);
     }
 
@@ -60,7 +59,7 @@ public class SaqueServlet extends HttpServlet {
         
         HttpSession sessao = request.getSession();
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
-        Operacao operacao = (Operacao) request.getAttribute("operacao");        
+        Operacao operacao = (Operacao) sessao.getAttribute("operacao");        
         operacao.setValor(Double.parseDouble(request.getParameter("valor")));
 
         

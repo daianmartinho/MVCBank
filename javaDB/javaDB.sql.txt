@@ -65,7 +65,7 @@ create table log_operacoes(
 	data TIMESTAMP,
         constraint operacoes_pk PRIMARY KEY (id),
         foreign key (id_tipo_operacao) references tipos_operacao (id),
-        foreign key (num_agencia,num_conta,id_tipo_conta) references contas (num_agencia,num_conta,id_tipo_conta)
+        foreign key (num_agencia,num_conta,id_tipo_conta) references contas (num_agencia,num_conta,id_tipo_conta),
 	foreign key (id_usuario) references usuarios (id)
 	   
 );
