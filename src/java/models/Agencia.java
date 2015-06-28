@@ -13,9 +13,10 @@ import java.util.List;
  * @author Daian
  */
 public class Agencia {
-    String num_agencia;
-    String endereço;
-    List<Conta> contas = new ArrayList();
+
+    private String num_agencia;
+    private String endereço;
+    private List<Conta> contas = new ArrayList();
 
     public String getNum_agencia() {
         return num_agencia;
@@ -40,5 +41,5 @@ public class Agencia {
     public void setContas(List<Conta> contas) {
         this.contas = contas;
     }
-  
+
 }

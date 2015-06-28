@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <jsp:include page="../header.jsp" />
 <div class="container">
+    
     <form action="TransferenciaServlet" method="post">
         <div class="row">
             <div class="col s12">

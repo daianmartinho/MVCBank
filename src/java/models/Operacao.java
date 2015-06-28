@@ -6,18 +6,19 @@
 package models;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 /**
  *
  * @author Daian
  */
 public class Operacao {
-    int id;
-    Conta conta;    
-    TipoDeOperacao tipo;
-    double valor;    
-    Timestamp data;
-    
+
+    private int id;
+    private Conta conta;
+    private TipoDeOperacao tipo;
+    private double valor;
+    private Timestamp data;
 
     public int getId() {
         return id;
@@ -34,7 +35,7 @@ public class Operacao {
     public void setTipo(TipoDeOperacao tipo) {
         this.tipo = tipo;
     }
-    
+
     public double getValor() {
         return valor;
     }
@@ -43,7 +44,11 @@ public class Operacao {
         this.valor = valor;
     }
 
-    public Timestamp getData() {
+    public String getData() {
+        return new SimpleDateFormat("dd/MM/yyyy hh:mm:ss").format(data);
+    }
+
+    public Timestamp getTimestamp() {
         return data;
     }
 
@@ -59,5 +64,8 @@ public class Operacao {
         this.conta = conta;
     }
 
-        
+    public String getDescricao() {
+        return this.getTipo().getDescricao()+" "+this.getConta().getAgencia().getNum_agencia()+"/"+this.getConta().getNum_conta()+"-"+this.getTipo().getId();
+    }
+
 }

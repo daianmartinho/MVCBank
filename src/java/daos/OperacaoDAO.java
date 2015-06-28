@@ -47,7 +47,7 @@ public class OperacaoDAO {
 
         }
     }
-    public List<Operacao> getLista(Conta conta) throws SQLException {
+    public List<Operacao> getExtrato(Conta conta) throws SQLException {
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "select * from log_operacoes where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
 
@@ -80,7 +80,7 @@ public class OperacaoDAO {
             sql.setInt(4, operacao.getConta().getTipo().getId());
             sql.setInt(5, usuario.getId());
             sql.setDouble(6, operacao.getValor());
-            sql.setTimestamp(7, operacao.getData());
+            sql.setTimestamp(7, operacao.getTimestamp());
 
             sql.executeUpdate();
 
@@ -94,9 +94,9 @@ public class OperacaoDAO {
             //cria variavel pra guardar o valor do saldo temporário, 
             //é temporario pq se der algum ko na transação este valor não 
             //será atribuido ao objeto conta;            
-            double tSaldo = conta.getSaldo() - valor;
-            if (tSaldo < 0) {
-                throw new SQLException();
+            double tSaldo = conta.getSaldo() + valor;
+            if (tSaldo < 0) {                
+                return -1;
             }
             //setando as variaveis do stmt
             sql.setDouble(1, tSaldo);
@@ -131,6 +131,7 @@ public class OperacaoDAO {
 
     private void popular(Operacao operacao, ResultSet r) throws SQLException {
         operacao.setId(r.getInt("id"));
+        operacao.setConta(new ContaDAO(conn).getObject(r.getString("num_agencia"), r.getString("num_conta"), r.getString("id_tipo_conta")));
         operacao.setTipo(new TipoDeOperacaoDAO(conn).get(r.getInt("id_tipo_operacao")));
         operacao.setValor(r.getDouble("valor"));
         operacao.setData(r.getTimestamp("data"));

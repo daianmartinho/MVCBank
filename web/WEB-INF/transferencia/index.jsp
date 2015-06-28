@@ -3,8 +3,8 @@
 <jsp:include page="../header.jsp" />
 <div class="container">
     <div class="row">
-        <h3>Conta</h3>
-        
+        <h4>Transferência</h4>
+        <h6 class="center">${msg}</h6>
         <form action="TransferenciaServlet" method="post"> 
             <input type="hidden" name="action" value="view"/>
             Transferir de:

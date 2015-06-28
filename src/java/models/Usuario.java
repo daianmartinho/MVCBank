@@ -74,7 +74,7 @@ public class Usuario {
         
         
         for (Conta c : contas) {
-            if(c.getTipo().id==id_tipo_conta){
+            if(c.getTipo().getId()==id_tipo_conta){
                 return c;
             }
         }

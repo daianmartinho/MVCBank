@@ -10,8 +10,8 @@ package models;
  * @author Daian
  */
 public class TipoDeConta {
-    int id;
-    String descricao;
+    private int id;
+    private String descricao;
 
     public String getDescricao() {
         return descricao;

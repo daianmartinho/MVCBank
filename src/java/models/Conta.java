@@ -17,22 +17,21 @@ public class Conta {
     //verifique que a conta tem uma agencia, e a agencia tem varias contas
     //fiz assim pra facilitar na hora da busca e criação dos objetos
     
-    Agencia agencia;
-    String num_conta;
-    TipoDeConta tipo;
-    double saldo;
-    List<Operacao> operacoes= new ArrayList();
+    private Agencia agencia;
+    private String num_conta;
+    private TipoDeConta tipo;
+    private double saldo;
+    private List<Operacao> operacoes= new ArrayList();
 
     public Agencia getAgencia() {
         return agencia;
     }
 
     public void setAgencia(Agencia agencia) {
-        this.agencia = agencia;
-        System.out.println(agencia.num_agencia);
+        this.agencia = agencia;       
         //sempre que uma agencia é setada pra conta,
         //essa conta é colocada na lista de contas da agencia        
-        this.agencia.contas.add(this);
+        this.agencia.getContas().add(this);
     }
 
     public String getNum_conta() {

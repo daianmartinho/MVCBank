@@ -12,7 +12,6 @@ import daos.UsuarioDAO;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -37,31 +36,31 @@ public class TransferenciaServlet extends HttpServlet {
     private void view(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        HttpSession sessao = request.getSession();  
-        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
+        HttpSession sessao = request.getSession();
+        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
         Operacao operacaoFrom = (Operacao) sessao.getAttribute("operacaoFrom");
         Operacao operacaoTo = (Operacao) sessao.getAttribute("operacaoTo");
-        
+
         String sNumAgencia = request.getParameter("num_agencia");
         String sNumConta = request.getParameter("num_conta");
         String sTipoDeContaFrom = request.getParameter("id_tipo_conta_from");
         String sTipoDeContaTo = request.getParameter("id_tipo_conta_to");
         String sValor = request.getParameter("valor");
-        System.out.println("tipo from"+sTipoDeContaFrom);
-        System.out.println("tipo to"+sTipoDeContaTo);
+        System.out.println("tipo from" + sTipoDeContaFrom);
+        System.out.println("tipo to" + sTipoDeContaTo);
         if (!sNumAgencia.isEmpty() && !sNumConta.isEmpty() && !sTipoDeContaFrom.isEmpty() && !sTipoDeContaTo.isEmpty() && !sValor.isEmpty()) {
 
             operacaoFrom.setConta(usuario.getConta(Integer.parseInt(sTipoDeContaFrom)));
-            operacaoFrom.setValor(Double.parseDouble(sValor));
+            operacaoFrom.setValor(-Double.parseDouble(sValor));
             operacaoTo.setConta(new ContaDAO(conn).getObject(sNumAgencia, sNumConta, sTipoDeContaTo));
             operacaoTo.setValor(Double.parseDouble(sValor));
-            String nomeDestinatario = new UsuarioDAO(conn).getNome(sNumAgencia, sNumConta);            
+            String nomeDestinatario = new UsuarioDAO(conn).getNome(sNumAgencia, sNumConta);
             //continuo passando a operaçao adiante
             sessao.setAttribute("operacaoFrom", operacaoFrom);
             sessao.setAttribute("operacaoTo", operacaoTo);
             request.setAttribute("nomeDestinatario", nomeDestinatario);
 
-            request.getRequestDispatcher("WEB-INF/transferencia/view.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/transferencia/create.jsp").forward(request, response);
         }
 
     }
@@ -74,9 +73,9 @@ public class TransferenciaServlet extends HttpServlet {
         Operacao operacaoTo = new Operacao();
         operacaoFrom.setTipo(new TipoDeOperacaoDAO(conn).get(5));//5 é o id de transferencia no banco
         operacaoTo.setTipo(new TipoDeOperacaoDAO(conn).get(5));//5 é o id de transferencia no banco
-        
+
         sessao.setAttribute("operacaoFrom", operacaoFrom);
-        sessao.setAttribute("operacaoTo", operacaoTo); 
+        sessao.setAttribute("operacaoTo", operacaoTo);
         request.getRequestDispatcher("WEB-INF/transferencia/index.jsp").forward(request, response);
 
     }
@@ -85,41 +84,44 @@ public class TransferenciaServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
-     
+
         Operacao operacaoFrom = (Operacao) sessao.getAttribute("operacaoFrom");
         Operacao operacaoTo = (Operacao) sessao.getAttribute("operacaoTo");
         Usuario usuario = (Usuario) sessao.getAttribute("usuario");
-       
+
         try {
             //INICIO DA TRANSAÇÃO
             conn.getConexao().setAutoCommit(false);
             //realizando o débito de operacaoFrom
             double novoSaldoFrom = new OperacaoDAO(conn).doDebito(operacaoFrom.getConta(), operacaoFrom.getValor());
+            if (novoSaldoFrom < 0) {
+                request.setAttribute("msg", "Saldo insuficiente");
+                request.getRequestDispatcher("WEB-INF/transferencia/index.jsp").forward(request, response);
+            } else {
+                //realizando o crédito em operacaoTo
+                double novoSaldoTo = new OperacaoDAO(conn).doCredito(operacaoTo.getConta(), operacaoTo.getValor());
 
-            //realizando o crédito em operacaoTo
-            double novoSaldoTo = new OperacaoDAO(conn).doCredito(operacaoTo.getConta(), operacaoTo.getValor());
-           
-            //seta timestamp da operação           
-            Calendar calendar = Calendar.getInstance();
-            java.sql.Timestamp timestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-            operacaoFrom.setData(timestamp);
-            operacaoTo.setData(timestamp);
-            //insere as operações na base
-            new OperacaoDAO(conn).doInsert(usuario, operacaoFrom);
-            new OperacaoDAO(conn).doInsert(new UsuarioDAO(conn).getObject(operacaoTo.getConta().getAgencia().getNum_agencia(), operacaoTo.getConta().getNum_conta()), operacaoTo);
+                //seta timestamp da operação           
+                Calendar calendar = Calendar.getInstance();
+                java.sql.Timestamp timestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+                operacaoFrom.setData(timestamp);
+                operacaoTo.setData(timestamp);
+                //insere as operações na base
+                new OperacaoDAO(conn).doInsert(usuario, operacaoFrom);
+                new OperacaoDAO(conn).doInsert(new UsuarioDAO(conn).getObject(operacaoTo.getConta().getAgencia().getNum_agencia(), operacaoTo.getConta().getNum_conta()), operacaoTo);
 
-            conn.getConexao().commit();
-            //FIM DA TRANSAÇÃO
+                conn.getConexao().commit();
+                //FIM DA TRANSAÇÃO
 
-            //operação comitada, posso atualizar o saldo do objeto
-            operacaoFrom.getConta().setSaldo(novoSaldoFrom);
-            operacaoTo.getConta().setSaldo(novoSaldoTo);
-            request.setAttribute("msg", "Transferencia realizada com sucesso");
-            request.getRequestDispatcher("WEB-INF/transferencia/success.jsp").forward(request, response);
-
+                //operação comitada, posso atualizar o saldo do objeto
+                operacaoFrom.getConta().setSaldo(novoSaldoFrom);
+                operacaoTo.getConta().setSaldo(novoSaldoTo);
+                request.setAttribute("msg", "Transferencia realizada com sucesso");
+                request.getRequestDispatcher("WEB-INF/common/message.jsp").forward(request, response);
+                sessao.setAttribute("operacao", null);
+            }
         } finally {
             conn.getConexao().setAutoCommit(true);
-            sessao.setAttribute("operacao", null);
 
         }
 

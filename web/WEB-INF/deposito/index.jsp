@@ -3,7 +3,7 @@
 <jsp:include page="../header.jsp" />
 <div class="container">
     <div class="row">
-        <h3>Conta</h3>
+        <h3>Depósito</h3>
         <form action="DepositoServlet" method="post">
             <input type="hidden" name="action" value="view"/>
             <div class="input-field col s12">

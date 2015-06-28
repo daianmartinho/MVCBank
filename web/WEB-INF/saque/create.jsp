@@ -2,11 +2,12 @@
 
 
 <div class="container">
+    <h6 class="center">${msg}</h6>
     <form action="SaqueServlet" method="post">
         <div class="input-field col s12">
             <input class="validate" type="text" name="valor" id="valor"/>
             <label for="valor">Valor</label>
-            <input type="hidden" name="${name}" value="${value}"  />
+            
             <input type="hidden" name="action" value="confirm" />
         </div>
         <div class="row">

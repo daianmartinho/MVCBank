@@ -1,28 +1,28 @@
-<%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.text.DateFormat"%>
-<%@page import="models.Conta"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+
 <jsp:include page="/WEB-INF/header.jsp" />
-<%@page import="models.Operacao"%>
+
 <%@page import="java.util.List"%>
 <div class="container">
     <div class="row">
-        <table class="responsive-table striped">
-            <thead>
+        <table >
+
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>                
+                <th>Valor</th>
+            </tr>
+
+            <c:forEach var="operacao" items="${extrato}">
                 <tr>
-                    <th>Tipo da Operação</th>
-                    <th>Data</th>
-                    <th>Valor</th>
+                    <td> ${operacao.data}</td>
+                    <td> ${operacao.descricao}</td>
+                    <td> ${operacao.valor}</td>
                 </tr>
-            </thead>
-            <tbody>
-                <% for(Operacao o : (List<Operacao>)request.getAttribute("operacoes")) {%>
-                <tr>
-                    <td> <%=o.getTipo().getDescricao() %></td>
-                    <td> <%=new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(o.getData()) %>
-                    <td> <%=o.getValor() %></td>
-                </tr>
-                <% } %>
-            </tbody>
+
+            </c:forEach>
+            
         </table>
         <div class="row">
             <a class="col s12 waves-effect waves-light btn"            

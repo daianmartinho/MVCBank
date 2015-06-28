@@ -11,8 +11,8 @@ package models;
  */
 public class TipoDeOperacao {
 
-    int id;
-    String descricao;
+    private int id;
+    private String descricao;
 
     public int getId() {
         return id;

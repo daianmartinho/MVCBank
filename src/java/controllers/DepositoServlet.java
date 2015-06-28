@@ -61,7 +61,7 @@ public class DepositoServlet extends HttpServlet {
             //continuo passando a operaçao adiante
             sessao.setAttribute("operacao", operacao);
 
-            request.getRequestDispatcher("WEB-INF/deposito/view.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/deposito/create.jsp").forward(request, response);
         }
 
     }
@@ -105,8 +105,8 @@ public class DepositoServlet extends HttpServlet {
 
             //operação comitada, posso atualizar o saldo do objeto
             operacao.getConta().setSaldo(novoSaldo);
-            request.setAttribute("msg", "deposito realizado com sucesso");
-            request.getRequestDispatcher("WEB-INF/deposito/success.jsp").forward(request, response);
+            request.setAttribute("msg", "Deposito realizado com sucesso");
+            request.getRequestDispatcher("WEB-INF/common/message.jsp").forward(request, response);
 
         } finally {
             conn.getConexao().setAutoCommit(true);
