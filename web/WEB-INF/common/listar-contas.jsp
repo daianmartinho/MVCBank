@@ -8,9 +8,7 @@
             <a class="col s12 waves-effect waves-light btn" 
                href="${nomeServlet}?action=${action}&tipo=${conta.tipo.id}">${conta.tipo.descricao}</a>
         </div>
-        <div class="card-panel">
-            <h3 class="center">${msg}</h3>
-        </div>
+        
     </c:forEach>
 
 

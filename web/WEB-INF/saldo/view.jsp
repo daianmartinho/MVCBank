@@ -1,7 +1,7 @@
 <jsp:include page="/WEB-INF/header.jsp" />
 <div class="container">
     <div class="row">
-        ${saldo}
+        ${msg}
     </div>
     <div class="row">
         <a class="col s12 waves-effect waves-light btn"            
