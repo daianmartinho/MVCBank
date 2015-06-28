@@ -16,7 +16,7 @@ public class Conta {
 
     //verifique que a conta tem uma agencia, e a agencia tem varias contas
     //fiz assim pra facilitar na hora da busca e criação dos objetos
-    Usuario usuario;
+    
     Agencia agencia;
     String num_conta;
     TipoDeConta tipo;
@@ -67,16 +67,4 @@ public class Conta {
         this.operacoes = operacoes;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-   
-    
-    
-    
 }

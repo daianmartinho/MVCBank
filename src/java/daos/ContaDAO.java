@@ -35,8 +35,7 @@ public class ContaDAO {
             ResultSet r = sql.executeQuery();
             Conta conta = new Conta();
             while (r.next()) {
-                popular(conta, r);
-                conta.setUsuario(new UsuarioDAO(conn).getObject(sNumAgencia, sNumConta));
+                popular(conta, r);                
             }
             return conta;
         } catch (SQLException sqle) {
@@ -59,8 +58,6 @@ public class ContaDAO {
                 Conta conta = new Conta();
                 //metodo pra popular a conta
                 popular(conta, r);
-                //seto tb o usuario dessa conta
-                conta.setUsuario(usuario);
                 contas.add(conta);
             }
 

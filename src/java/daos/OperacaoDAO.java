@@ -44,7 +44,7 @@ public class OperacaoDAO {
             }
             return lista;
 
-        } 
+        }
     }
 
     public void doInsert(Operacao operacao) throws SQLException {
@@ -62,9 +62,9 @@ public class OperacaoDAO {
 
             sql.executeUpdate();
 
-        } 
+        }
     }
-    
+
     public double doSaque(Conta conta, double valor) throws SQLException {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
@@ -73,7 +73,7 @@ public class OperacaoDAO {
             //é temporario pq se der algum ko na transação este valor não 
             //será atribuido ao objeto conta;            
             double tSaldo = conta.getSaldo() - valor;
-            if(tSaldo<0){
+            if (tSaldo < 0) {
                 throw new SQLException();
             }
             //setando as variaveis do stmt
@@ -88,23 +88,25 @@ public class OperacaoDAO {
 
         }
     }
-    
+
     public double getSaldo(Conta conta) throws SQLException {
 
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "select saldo from contas where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
-            
+
             //setando as variaveis do stmt
             sql.setString(1, conta.getAgencia().getNum_agencia());
             sql.setString(2, conta.getNum_conta());
-            sql.setInt(3, conta.getTipo().getId());  
-            
+            sql.setInt(3, conta.getTipo().getId());
+
             ResultSet r = sql.executeQuery();
-            
-            return r.getDouble("saldo");
+            while (r.next()) {
+                return r.getDouble("saldo");
+            }
         }
+        throw new SQLException();
     }
-    
+
     private void popular(Operacao operacao, ResultSet r) throws SQLException {
         operacao.setId(r.getInt("id"));
         operacao.setTipo(new TipoDeOperacaoDAO().get(r.getInt("id_tipo_operacao")));

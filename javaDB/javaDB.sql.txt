@@ -23,7 +23,7 @@ create table tipos_conta (
 );
 
 create table Contas
-(
+(	
         num_agencia numeric(4),	
         num_conta numeric(5),
         id_tipo_conta integer,                            	

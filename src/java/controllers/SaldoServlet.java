@@ -43,8 +43,9 @@ public class SaldoServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
         Usuario usuario = (Usuario) sessao.getAttribute("usuario");
-        int id_conta = Integer.parseInt(request.getParameter("id"));
-        double saldo = new OperacaoDAO(conn).getSaldo(usuario.getConta(id_conta));
+        int id_tipo_conta = Integer.parseInt(request.getParameter("tipo"));
+       
+        double saldo = new OperacaoDAO(conn).getSaldo(usuario.getConta(id_tipo_conta));
 
         request.setAttribute("msg", saldo);
         request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
