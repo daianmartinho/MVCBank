@@ -18,8 +18,8 @@ import models.TipoDeOperacao;
 public class TipoDeOperacaoDAO {
     Conexao conn;
     
-    public TipoDeOperacaoDAO(){
-        conn = new Conexao();
+    public TipoDeOperacaoDAO(Conexao c){
+        conn = c;
     }
     
     public TipoDeOperacao get(int id){
@@ -33,9 +33,7 @@ public class TipoDeOperacaoDAO {
             return tipo;
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } finally {
-            conn.fechar();
-        }
+        } 
     }
     private void popular(TipoDeOperacao tipo, ResultSet r) throws SQLException {
 

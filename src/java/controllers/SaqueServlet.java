@@ -6,10 +6,8 @@
 package controllers;
 
 import daos.OperacaoDAO;
-import daos.SaqueDAO;
 import daos.TipoDeOperacaoDAO;
 import java.io.IOException;
-
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -31,22 +29,27 @@ import models.Usuario;
 @WebServlet(name = "SaqueServlet", urlPatterns = {"/SaqueServlet"})
 public class SaqueServlet extends HttpServlet {
 
+    Conexao conn;
+
     private void index(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-        Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO().get(4));//4 é o id de saque no banco
-        sessao.setAttribute("operacao", operacao);
-        request.getRequestDispatcher("WEB-INF/saque/index.jsp").forward(request, response);
+       
+        request.setAttribute("nomeServlet", "SaqueServlet");
+        request.setAttribute("action", "create");
+        
+        request.getRequestDispatcher("WEB-INF/common/listar-contas.jsp").forward(request, response);
+
     }
 
     private void create(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-        Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO().get(4));//4 é o id de saque no banco
-        String tipo = request.getParameter("tipo");
-        request.setAttribute("tipo", tipo);
-        sessao.setAttribute("operacao", operacao);
+        
+        Operacao operacao = (Operacao) request.getAttribute("operacao");
+        operacao.setTipo(new TipoDeOperacaoDAO(conn).get(4));//4 é o id de saque no banco
+        String tipoConta = request.getParameter("tipo");
+        request.setAttribute("name", "operacao");
+        request.setAttribute("value", operacao);
+        request.setAttribute("tipo", tipoConta);
+        request.setAttribute("operacao", operacao);
         request.getRequestDispatcher("WEB-INF/saque/create.jsp").forward(request, response);
     }
 
@@ -54,10 +57,10 @@ public class SaqueServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession sessao = request.getSession();
         Operacao operacao = (Operacao) sessao.getAttribute("operacao");
-        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
-        
-        operacao.setConta(usuario.getConta((int)request.getAttribute("tipo")));
-        System.out.println("saldo da conta= "+operacao.getConta().getSaldo());
+        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
+
+        operacao.setConta(usuario.getConta((int) request.getAttribute("tipo")));
+        System.out.println("saldo da conta= " + operacao.getConta().getSaldo());
         Conexao conn = new Conexao();
 
         //pede ao SaqueDAO() pra sacar dessa conta  
@@ -105,11 +108,12 @@ public class SaqueServlet extends HttpServlet {
     }
 
     protected void controle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-        String action = !request.getParameter("action").equals(null) ?
-                request.getParameter("action"):
-                (String) sessao.getAttribute("action");
-      
+        //tenta pegar action vindo de um jsp
+        String action = request.getParameter("action");
+        //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
+        if (action == null) {
+            action = (String) request.getAttribute("action");
+        }
 
         switch (action) {
             case "index":
@@ -140,8 +144,13 @@ public class SaqueServlet extends HttpServlet {
             throws ServletException, IOException {
         //request.setAttribute("tipo", request.getParameter("tipo"));
         //request.setAttribute("action", request.getParameter("action"));
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } finally {
+            conn.fechar();
+        }
 
-        controle(request, response);
     }
 
     /**

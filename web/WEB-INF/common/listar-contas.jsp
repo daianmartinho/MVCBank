@@ -5,6 +5,7 @@
     <c:forEach var="conta" items="${usuario.contas}">
 
         <div class="row">
+            
             <a class="col s12 waves-effect waves-light btn" 
                href="${nomeServlet}?action=${action}&tipo=${conta.tipo.id}">${conta.tipo.descricao}</a>
         </div>
