@@ -113,7 +113,8 @@ public class SaldoServlet extends HttpServlet {
         Conta conta = null;
         for(Conta c : usuario.getContas()){
             if(c.getTipo().getId() == Integer.parseInt(request.getParameter("tipo"))){
-                conta = c;
+                conta = contadao.get(c.getAgencia().getNum_agencia(),
+                        c.getNum_conta(), ""+c.getTipo().getId());
             }
         }
         if(conta!=null){

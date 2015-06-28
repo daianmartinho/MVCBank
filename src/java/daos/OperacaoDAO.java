@@ -37,14 +37,15 @@ public class OperacaoDAO {
 
             ResultSet r = sql.executeQuery();
             List<Operacao> lista = new ArrayList();
-            Operacao operacao = new Operacao();
+            Operacao operacao;
             while (r.next()) {
+                operacao = new Operacao();
                 popular(operacao, r);
                 lista.add(operacao);
             }
             return lista;
 
-        } 
+        }
     }
 
     public void insert(Operacao operacao) throws SQLException {
@@ -62,7 +63,7 @@ public class OperacaoDAO {
 
             sql.executeUpdate();
 
-        } 
+        }
     }
 
     private void popular(Operacao operacao, ResultSet r) throws SQLException {

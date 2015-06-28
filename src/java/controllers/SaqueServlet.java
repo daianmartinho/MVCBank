@@ -31,7 +31,8 @@ import models.Usuario;
 @WebServlet(name = "SaqueServlet", urlPatterns = {"/SaqueServlet"})
 public class SaqueServlet extends HttpServlet {
 
-    private void index(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void index(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         HttpSession sessao = request.getSession();
         Operacao operacao = new Operacao();
         operacao.setTipo(new TipoDeOperacaoDAO().get(4));//4 é o id de saque no banco
@@ -49,7 +50,8 @@ public class SaqueServlet extends HttpServlet {
         request.getRequestDispatcher("WEB-INF/saque/create.jsp").forward(request, response);
     }
 
-    private void confirm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void confirm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         HttpSession sessao = request.getSession();
         Operacao operacao = (Operacao) sessao.getAttribute("operacao");
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
@@ -104,7 +106,9 @@ public class SaqueServlet extends HttpServlet {
 
     protected void controle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession sessao = request.getSession();
-        String action = (String) sessao.getAttribute("action");
+        String action = !request.getParameter("action").equals(null) ?
+                request.getParameter("action"):
+                (String) sessao.getAttribute("action");
       
 
         switch (action) {
