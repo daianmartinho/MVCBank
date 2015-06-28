@@ -125,34 +125,5 @@ public class SaldoServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-//
-//    private void index(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        response.setContentType("text/html;charset=UTF-8");
-//        HttpSession sessao = request.getSession();
-//        Operacao operacao = new Operacao();
-//        operacao.setTipo(new TipoDeOperacaoDAO().get(1));//1 é o id de saldo no banco
-//        sessao.setAttribute("operacao", operacao);
-//        request.getRequestDispatcher("WEB-INF/saldo/index.jsp").forward(request, response);
-//    }
-//
-//    private void view(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        response.setContentType("text/html;charset=UTF-8");
-//        HttpSession sessao = request.getSession();
-//        ContaDAO contadao = new ContaDAO();
-//        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
-//        Conta conta = null;
-//        for(Conta c : usuario.getContas()){
-//            if(c.getTipo().getId() == Integer.parseInt(request.getParameter("tipo"))){
-//                conta = contadao.get(c.getAgencia().getNum_agencia(),
-//                        c.getNum_conta(), ""+c.getTipo().getId());
-//            }
-//        }
-//        if(conta!=null){
-//            request.setAttribute("saldo", conta.getSaldo());
-//            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
-//        }else{
-//            request.getRequestDispatcher("/WEB-INF/saldo/view.jsp").forward(request, response);
-//        }
-//    }
+
 }

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/web/WEB-INF/saldo/view.jsp</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/web/WEB-INF/common/listar-contas.jsp</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/src/java/daos/ContaDAO.java</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/src/java/controllers/SaldoServlet.java</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/src/java/models/Usuario.java</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/src/java/controllers/ControladorOperacoesServlet.java</file>
+            <file>file:/C:/Users/Daian/Documents/NetBeansProjects/MVCBank/src/java/daos/OperacaoDAO.java</file>
+        </group>
     </open-files>
 </project-private>
