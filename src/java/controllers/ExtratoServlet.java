@@ -114,7 +114,7 @@ public class ExtratoServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
         Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO().get(2));//2 é o id de extrato no banco
+        operacao.setTipo(new TipoDeOperacaoDAO(new Conexao()).get(2));//2 é o id de extrato no banco
         sessao.setAttribute("operacao", operacao);
         request.getRequestDispatcher("/WEB-INF/extrato/selecionar-conta.jsp").forward(request, response);
     }
@@ -122,12 +122,12 @@ public class ExtratoServlet extends HttpServlet {
     private void view(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
-        ContaDAO contadao = new ContaDAO();        
+        ContaDAO contadao = new ContaDAO(new Conexao());        
         Usuario usuario = (Usuario)sessao.getAttribute("usuario");
         Conta conta = null;
         for(Conta c : usuario.getContas()){
             if(c.getTipo().getId() == Integer.parseInt(request.getParameter("tipo"))){
-                conta = contadao.get(c.getAgencia().getNum_agencia(),
+                conta = contadao.getObject(c.getAgencia().getNum_agencia(),
                         c.getNum_conta(), ""+c.getTipo().getId());
             }
         }
