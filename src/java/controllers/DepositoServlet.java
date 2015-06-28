@@ -9,14 +9,11 @@ import daos.ContaDAO;
 import daos.DepositoDAO;
 import daos.OperacaoDAO;
 import daos.TipoDeOperacaoDAO;
-import daos.UsuarioDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -24,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jdbc.Conexao;
-import models.Conta;
 import models.Operacao;
 import models.Usuario;
 
@@ -34,6 +30,8 @@ import models.Usuario;
  */
 @WebServlet(name = "DepositoServlet", urlPatterns = {"/DepositoServlet"})
 public class DepositoServlet extends HttpServlet {
+
+    Conexao conn;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -57,7 +55,7 @@ public class DepositoServlet extends HttpServlet {
 
         if (!sNumAgencia.isEmpty() && !sNumConta.isEmpty() && !sTipoDeConta.isEmpty() && !sValor.isEmpty()) {
 
-            operacao.setConta(new ContaDAO().get(sNumAgencia, sNumConta, sTipoDeConta));
+            operacao.setConta(new ContaDAO(conn).getObject(sNumAgencia, sNumConta, sTipoDeConta));
             operacao.setValor(Double.parseDouble(sValor));
 
             //continuo passando a operaçao adiante
@@ -73,66 +71,57 @@ public class DepositoServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
         Operacao operacao = new Operacao();
-        operacao.setTipo(new TipoDeOperacaoDAO().get(3));//3 é o id de depósito no banco
+        operacao.setTipo(new TipoDeOperacaoDAO(conn).get(3));//3 é o id de depósito no banco
         sessao.setAttribute("operacao", operacao);
         request.getRequestDispatcher("WEB-INF/deposito/index.jsp").forward(request, response);
 
     }
+
     private void create(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
         Operacao operacao = (Operacao) sessao.getAttribute("operacao");
-        Conexao conn = new Conexao();
-        
+        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
         //pede ao DepositoDAO pra depositar nessa conta e   
         try {
             //INICIO DA TRANSAÇÃO
-            conn.getConexao().setAutoCommit(false);   
-            
+            conn.getConexao().setAutoCommit(false);
+            System.out.println("até aqui foi1");
             //realizando o deposito
-            double novoSaldo = new DepositoDAO(conn).depositarNaConta(operacao.getConta(), operacao.getValor());
-            
+            double novoSaldo = new OperacaoDAO(conn).doDeposito(operacao.getConta(), operacao.getValor());
+            System.out.println("até aqui foi2");
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();
             java.sql.Timestamp timestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-            operacao.setData(timestamp);        
-            
+            operacao.setData(timestamp);
+            System.out.println("até aqui foi3");
             //insere a operação na base
-            new OperacaoDAO(conn).insert(operacao);
-            
-            conn.getConexao().commit();    
+            new OperacaoDAO(conn).doInsert(usuario, operacao);
+
+            conn.getConexao().commit();
             //FIM DA TRANSAÇÃO
-            
+
             //operação comitada, posso atualizar o saldo do objeto
             operacao.getConta().setSaldo(novoSaldo);
             request.setAttribute("msg", "deposito realizado com sucesso");
             request.getRequestDispatcher("WEB-INF/deposito/success.jsp").forward(request, response);
 
-        } catch (SQLException ex) {
-            try {
-                conn.getConexao().rollback();
-                
-            } catch (SQLException ex1) {
-                Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex1);
-            }
         } finally {
-            try {
-                conn.getConexao().setAutoCommit(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            conn.fechar();
+            conn.getConexao().setAutoCommit(true);
 
         }
-        
+
     }
+
     protected void controle(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession sessao = request.getSession();
-        
-        String action = (String) sessao.getAttribute("action");
-       
+            throws ServletException, IOException, SQLException {
+        //tenta pegar action vindo de um jsp
+        String action = request.getParameter("action");
+        //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
+        if (action == null) {
+            action = (String) request.getAttribute("action");
+        }
         switch (action) {
             case "view":
                 view(request, response);
@@ -140,7 +129,7 @@ public class DepositoServlet extends HttpServlet {
             case "index":
                 index(request, response);
                 break;
-            case "create":                
+            case "create":
                 create(request, response);
                 break;
         }
@@ -159,7 +148,20 @@ public class DepositoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } catch (SQLException ex) {
+            System.out.println("caiu 2");
+            try {
+                conn.getConexao().rollback();
+            } catch (SQLException ex1) {
+                System.out.println("caiu 3");
+                Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        } finally {
+            conn.fechar();
+        }
     }
 
     /**
@@ -173,7 +175,12 @@ public class DepositoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } finally {
+            conn.fechar();
+        }
     }
 
     /**

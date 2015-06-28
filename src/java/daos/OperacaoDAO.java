@@ -27,6 +27,26 @@ public class OperacaoDAO {
         conn = c;
     }
 
+    public double doDeposito(Conta conta, double valor) throws SQLException {
+
+        try (PreparedStatement sql = conn.getConexao().prepareStatement(
+                "update contas set saldo=? where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
+            //cria variavel pra guardar o valor do saldo temporário, 
+            //é temporario pq se der algum ko na transação este valor não 
+            //será atribuido ao objeto conta;
+            double tSaldo = conta.getSaldo() + valor;
+            //setando as variaveis do stmt
+            sql.setDouble(1, tSaldo);
+            sql.setString(2, conta.getAgencia().getNum_agencia());
+            sql.setString(3, conta.getNum_conta());
+            sql.setInt(4, conta.getTipo().getId());
+
+            sql.executeUpdate();
+
+            return tSaldo;
+
+        }
+    }
     public List<Operacao> getLista(Conta conta) throws SQLException {
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "select * from log_operacoes where num_agencia=? and num_conta=? and id_tipo_conta=?")) {
