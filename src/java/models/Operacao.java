@@ -13,7 +13,7 @@ import java.sql.Timestamp;
  */
 public class Operacao {
     int id;
-    Conta conta;
+    Conta conta;    
     TipoDeOperacao tipo;
     double valor;    
     Timestamp data;

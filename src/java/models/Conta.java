@@ -66,5 +66,8 @@ public class Conta {
     public void setOperacoes(List<Operacao> operacoes) {
         this.operacoes = operacoes;
     }
+    public void addOperacao(Operacao o){
+        this.operacoes.add(o);
+    }
 
 }

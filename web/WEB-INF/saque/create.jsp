@@ -16,7 +16,7 @@
             <table>
                 <tr>                    
                     <td>Valor: <input type="text" name="valor" /></td>
-                    <td><input type="hidden" value="confirm" name="action" /></td>
+                    <td><input type="hidden" value="${value}" name="${name}" /></td>
                     <td><input type="submit" name="saque" value="Confirmar" /></td>
                 </tr>
                     

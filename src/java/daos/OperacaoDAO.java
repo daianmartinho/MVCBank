@@ -13,6 +13,7 @@ import java.util.List;
 import jdbc.Conexao;
 import models.Conta;
 import models.Operacao;
+import models.Usuario;
 
 /**
  *
@@ -48,7 +49,7 @@ public class OperacaoDAO {
         }
     }
 
-    public void doInsert(Operacao operacao) throws SQLException {
+    public void doInsert(Usuario usuario,Operacao operacao) throws SQLException {
         try (PreparedStatement sql = conn.getConexao().prepareStatement(
                 "insert into log_operacoes (id_tipo_operacao,num_agencia,num_conta,id_tipo_conta,id_usuario,valor,data) values (?,?,?,?,?,?,?)")) {
 
@@ -57,7 +58,7 @@ public class OperacaoDAO {
             sql.setString(2, operacao.getConta().getAgencia().getNum_agencia());
             sql.setString(3, operacao.getConta().getNum_conta());
             sql.setInt(4, operacao.getConta().getTipo().getId());
-            sql.setInt(5, operacao.getConta().getUsuario().getId());
+            sql.setInt(5, usuario.getId());
             sql.setDouble(6, operacao.getValor());
             sql.setTimestamp(7, operacao.getData());
 
@@ -110,7 +111,7 @@ public class OperacaoDAO {
 
     private void popular(Operacao operacao, ResultSet r) throws SQLException {
         operacao.setId(r.getInt("id"));
-        operacao.setTipo(new TipoDeOperacaoDAO().get(r.getInt("id_tipo_operacao")));
+        operacao.setTipo(new TipoDeOperacaoDAO(conn).get(r.getInt("id_tipo_operacao")));
         operacao.setValor(r.getDouble("valor"));
         operacao.setData(r.getTimestamp("data"));
     }

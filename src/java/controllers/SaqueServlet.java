@@ -42,34 +42,33 @@ public class SaqueServlet extends HttpServlet {
     }
 
     private void create(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        Operacao operacao = (Operacao) request.getAttribute("operacao");
+        Operacao operacao = new Operacao();        
         operacao.setTipo(new TipoDeOperacaoDAO(conn).get(4));//4 é o id de saque no banco
-        String tipoConta = request.getParameter("tipo");
+        int id_tipo_conta = Integer.parseInt(request.getParameter("tipo"));
+        HttpSession sessao = request.getSession();
+        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
+        operacao.setConta(usuario.getConta(id_tipo_conta));
+        
         request.setAttribute("name", "operacao");
         request.setAttribute("value", operacao);
-        request.setAttribute("tipo", tipoConta);
-        request.setAttribute("operacao", operacao);
+        
         request.getRequestDispatcher("WEB-INF/saque/create.jsp").forward(request, response);
     }
 
     private void confirm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
         HttpSession sessao = request.getSession();
-        Operacao operacao = (Operacao) sessao.getAttribute("operacao");
-        Usuario usuario = (Usuario) sessao.getAttribute("usuario");
+        Usuario usuario = (Usuario)sessao.getAttribute("usuario");
+        Operacao operacao = (Operacao) request.getAttribute("operacao");        
+        operacao.setValor(Double.parseDouble(request.getParameter("valor")));
 
-        operacao.setConta(usuario.getConta((int) request.getAttribute("tipo")));
-        System.out.println("saldo da conta= " + operacao.getConta().getSaldo());
-        Conexao conn = new Conexao();
-
-        //pede ao SaqueDAO() pra sacar dessa conta  
+        
         try {
             //INICIO DA TRANSAÇÃO
             conn.getConexao().setAutoCommit(false);
 
-            //realizando o deposito
-            double novoSaldo = new SaqueDAO(conn).sacar(operacao.getConta(), operacao.getValor());
+            //realizando o saque
+            double novoSaldo = new OperacaoDAO(conn).doSaque(operacao.getConta(), operacao.getValor());
 
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();
@@ -77,37 +76,28 @@ public class SaqueServlet extends HttpServlet {
             operacao.setData(timestamp);
 
             //insere a operação na base
-            new OperacaoDAO(conn).insert(operacao);
+            new OperacaoDAO(conn).doInsert(usuario,operacao);
 
             conn.getConexao().commit();
             //FIM DA TRANSAÇÃO
 
-            //operação comitada, posso atualizar o saldo do objeto
+            //operação comitada, posso atualizar o objeto
             operacao.getConta().setSaldo(novoSaldo);
-
+            operacao.getConta().addOperacao(operacao);
+            
             request.setAttribute("msg", "O saque foi realizado com sucesso! Seu novo Saldo é" + novoSaldo);
-            request.getRequestDispatcher("WEB-INF/saque/success.jsp").forward(request, response);
-        } catch (SQLException ex) {
-            try {
-                conn.getConexao().rollback();
-                request.setAttribute("msg", "saldo insuficiente");
-                request.getRequestDispatcher("WEB-INF/saque/erro.jsp").include(request, response);
-            } catch (SQLException ex1) {
-                Logger.getLogger(SaqueServlet.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        } finally {
-            try {
-                conn.getConexao().setAutoCommit(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(SaqueServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            conn.fechar();
-
+            request.getRequestDispatcher("WEB-INF/common/message.jsp").forward(request, response);
+        } catch(SQLException e){
+            conn.getConexao().rollback();
+            request.setAttribute("msg", "Erro no saque.");
+            request.getRequestDispatcher("WEB-INF/common/message.jsp").forward(request, response);
         }
+
+        
 
     }
 
-    protected void controle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void controle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         //tenta pegar action vindo de um jsp
         String action = request.getParameter("action");
         //se não encontrar, é pq o servlet foi chamado pelo controlador, neste caso busca nos atributos do request
@@ -123,7 +113,7 @@ public class SaqueServlet extends HttpServlet {
                 create(request, response);
                 break;
             case "confirm":
-                create(request, response);
+                confirm(request, response);
                 break;
 
         }
@@ -147,6 +137,8 @@ public class SaqueServlet extends HttpServlet {
         conn = new Conexao();
         try {
             controle(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(SaqueServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             conn.fechar();
         }
@@ -164,7 +156,14 @@ public class SaqueServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        controle(request, response);
+        conn = new Conexao();
+        try {
+            controle(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(SaqueServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            conn.fechar();
+        }
     }
 
     /**
