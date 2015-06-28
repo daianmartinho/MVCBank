@@ -1,4 +1,4 @@
-create table agencias
+﻿create table agencias
 (        
         num_agencia NUMERIC(4) not null, 
         endereco VARCHAR(45),
@@ -59,12 +59,14 @@ create table log_operacoes(
 	id_tipo_operacao INTEGER,	
         num_agencia numeric(4),	
         num_conta numeric(5),
-        id_tipo_conta integer, 	
+        id_tipo_conta integer,
+	id_usuario integer, 	
         valor NUMERIC(12,2),
 	data TIMESTAMP,
         constraint operacoes_pk PRIMARY KEY (id),
         foreign key (id_tipo_operacao) references tipos_operacao (id),
         foreign key (num_agencia,num_conta,id_tipo_conta) references contas (num_agencia,num_conta,id_tipo_conta)
+	foreign key (id_usuario) references usuarios (id)
 	   
 );
 
@@ -73,8 +75,8 @@ create table log_operacoes(
 insert into agencias (num_agencia,endereco) values (0001,'rua 1');
 insert into agencias (num_agencia,endereco) values (0002,'rua 2');
 
-insert into tipos_conta (descricao) values ('conta_corrente');
-insert into tipos_conta (descricao) values ('conta_poupanca');
+insert into tipos_conta (descricao) values ('Conta Corrente');
+insert into tipos_conta (descricao) values ('Conta Poupança');
 
 insert into usuarios(nome, cpf,telefone,senha) values ('daian','1231231231','111111222','123456');
 insert into usuarios(nome, cpf,telefone,senha) values ('igor','2222222222','1232222233','123456');

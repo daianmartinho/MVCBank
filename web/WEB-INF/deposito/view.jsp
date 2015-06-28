@@ -5,17 +5,16 @@
     <form action="DepositoServlet" method="post">
         <div class="row">
             <div class="col s12">
-            <div class="card-panel">
-                <h3 class="center">
-                    Agencia:${operacao.conta.agencia.num_agencia}<br/>
-            ${operacao.conta.tipo.descricao}:${operacao.conta.num_conta}<br/>
-            Nome:${operacao.conta.usuario.nome}<br/>
-            Valor:${operacao.valor}
-            <%HttpSession sessao = request.getSession();
-                sessao.setAttribute("action", "create");%>
-                </h3>
+                <div class="card-panel">
+                    <h3 class="center">
+                        Agencia:${operacao.conta.agencia.num_agencia}<br/>
+                        ${operacao.conta.tipo.descricao}:${operacao.conta.num_conta}<br/>
+                        
+                        Valor:${operacao.valor}
+                        <input type="hidden" name="action" value="create"/>
+                    </h3>
+                </div>
             </div>
-        </div>
         </div>
         <div class="row">
             <button class="btn waves-effect waves-light col offset-s5" type="submit">Confirmar

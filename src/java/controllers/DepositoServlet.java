@@ -6,7 +6,6 @@
 package controllers;
 
 import daos.ContaDAO;
-import daos.DepositoDAO;
 import daos.OperacaoDAO;
 import daos.TipoDeOperacaoDAO;
 import java.io.IOException;
@@ -46,8 +45,9 @@ public class DepositoServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
+        
         Operacao operacao = (Operacao) sessao.getAttribute("operacao");
-
+        
         String sNumAgencia = request.getParameter("num_agencia");
         String sNumConta = request.getParameter("num_conta");
         String sTipoDeConta = request.getParameter("tipo_conta");
@@ -72,7 +72,7 @@ public class DepositoServlet extends HttpServlet {
         HttpSession sessao = request.getSession();
         Operacao operacao = new Operacao();
         operacao.setTipo(new TipoDeOperacaoDAO(conn).get(3));//3 é o id de depósito no banco
-        sessao.setAttribute("operacao", operacao);
+        sessao.setAttribute("operacao", operacao);        
         request.getRequestDispatcher("WEB-INF/deposito/index.jsp").forward(request, response);
 
     }
@@ -81,21 +81,22 @@ public class DepositoServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession sessao = request.getSession();
+        System.out.println("oio");
         Operacao operacao = (Operacao) sessao.getAttribute("operacao");
         Usuario usuario = (Usuario) sessao.getAttribute("usuario");
         //pede ao DepositoDAO pra depositar nessa conta e   
         try {
             //INICIO DA TRANSAÇÃO
             conn.getConexao().setAutoCommit(false);
-            System.out.println("até aqui foi1");
+            
             //realizando o deposito
             double novoSaldo = new OperacaoDAO(conn).doDeposito(operacao.getConta(), operacao.getValor());
-            System.out.println("até aqui foi2");
+           
             //seta timestamp da operação           
             Calendar calendar = Calendar.getInstance();
             java.sql.Timestamp timestamp = new java.sql.Timestamp(calendar.getTime().getTime());
             operacao.setData(timestamp);
-            System.out.println("até aqui foi3");
+           
             //insere a operação na base
             new OperacaoDAO(conn).doInsert(usuario, operacao);
 
@@ -178,6 +179,8 @@ public class DepositoServlet extends HttpServlet {
         conn = new Conexao();
         try {
             controle(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(DepositoServlet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             conn.fechar();
         }

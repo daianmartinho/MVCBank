@@ -5,6 +5,7 @@
     <div class="row">
         <h3>Conta</h3>
         <form action="DepositoServlet" method="post">
+            <input type="hidden" name="action" value="view"/>
             <div class="input-field col s12">
                 <input class="validate" type="text" name="num_agencia" id="agencia"/>
                 <label for="agencia">Agencia</label>
@@ -21,8 +22,7 @@
                 <input class="validate" type="text" name="valor" id="valor"/>
                 <label for="valor">Valor</label>
             </div>
-            <%HttpSession sessao = request.getSession();
-                sessao.setAttribute("action", "view");%>
+            
             <button class="btn waves-effect waves-light col offset-s5" type="submit">Entrar
                 <i class="mdi-content-send right"></i>
             </button>
